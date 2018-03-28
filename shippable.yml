@@ -1,0 +1,67 @@
+resources:
+#---------------------------------------------------------------#
+#------------------------------ Dev ----------------------------#
+#---------------------------------------------------------------#
+
+# Docker Image
+  - name: app_be_img
+    type: image
+    integration: dr_dh # replace with your integration name
+    versionTemplate:
+      sourceName: "devopsrecipes/app_be" # replace with your Hub URL
+      isPull: false
+      versionName: latest
+
+jobs:
+#---------------------------------------------------------------#
+#----------------------------   Dev   --------------------------#
+#---------------------------------------------------------------#
+
+# runCI job that builds and pushes artifact using Shippable CI
+  - name: app_be_runCI
+    type: runCI
+    dependencyMode: strict
+    triggerMode: parallel
+    steps:
+      - OUT: app_be_img
+    flags:
+      - be
+
+# Language setting http://docs.shippable.com/ci/languages/python/
+language: python
+
+# use this to control what branches get built.
+# http://docs.shippable.com/ci/advancedOptions/branches/
+branches:
+  only:
+    - master
+
+# using pre-defined build variables
+# full list http://docs.shippable.com/ci/advancedOptions/environmentVariables/
+env:
+  global:
+    - DOCKER_REPO=app_be
+    - IMG_RES=$DOCKER_REPO"_img"
+    - DOCKER_ACC=devopsrecipes # {account name}
+
+build:
+  # http://docs.shippable.com/ci/shippableyml/#ci
+  ci:
+    - docker build -t $DOCKER_ACC/$DOCKER_REPO:$BRANCH.$BUILD_NUMBER .
+
+  # http://docs.shippable.com/ci/shippableyml/#post_ci
+  post_ci:
+    - docker push $DOCKER_ACC/$DOCKER_REPO:$BRANCH.$BUILD_NUMBER
+
+  on_success:
+    # save the new image state for use later in the pipeline
+    - shipctl put_resource_state $IMG_RES versionName $BRANCH.$BUILD_NUMBER
+
+# Integrations are used to connect external resources to CI
+# http://docs.shippable.com/integrations/overview/
+integrations:
+  # adding docker hub integration so that credentials are available to CI Job
+  # http://docs.shippable.com/integrations/imageRegistries/dockerHub/
+  hub:
+    - integrationName: dr_dh
+      type: docker
