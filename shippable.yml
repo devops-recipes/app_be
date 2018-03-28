@@ -1,32 +1,3 @@
-resources:
-#---------------------------------------------------------------#
-#------------------------------ Dev ----------------------------#
-#---------------------------------------------------------------#
-
-# Docker Image
-  - name: app_be_img
-    type: image
-    integration: dr_dh # replace with your integration name
-    versionTemplate:
-      sourceName: "devopsrecipes/app_be" # replace with your Hub URL
-      isPull: false
-      versionName: latest
-
-jobs:
-#---------------------------------------------------------------#
-#----------------------------   Dev   --------------------------#
-#---------------------------------------------------------------#
-
-# runCI job that builds and pushes artifact using Shippable CI
-  - name: app_be_runCI
-    type: runCI
-    dependencyMode: strict
-    triggerMode: parallel
-    steps:
-      - OUT: app_be_img
-    flags:
-      - be
-
 # Language setting http://docs.shippable.com/ci/languages/python/
 language: python
 
@@ -63,5 +34,34 @@ integrations:
   # adding docker hub integration so that credentials are available to CI Job
   # http://docs.shippable.com/integrations/imageRegistries/dockerHub/
   hub:
-    - integrationName: dr_dh
+    - integrationName: drship_dockerhub
       type: docker
+
+resources:
+#---------------------------------------------------------------#
+#------------------------------ Dev ----------------------------#
+#---------------------------------------------------------------#
+
+# Docker Image
+  - name: app_be_img
+    type: image
+    integration: drship_dockerhub # replace with your integration name
+    versionTemplate:
+      sourceName: "devopsrecipes/app_be" # replace with your Hub URL
+      isPull: false
+      versionName: latest
+
+jobs:
+#---------------------------------------------------------------#
+#----------------------------   Dev   --------------------------#
+#---------------------------------------------------------------#
+
+# runCI job that builds and pushes artifact using Shippable CI
+  - name: app_be_runCI
+    type: runCI
+    dependencyMode: strict
+    triggerMode: parallel
+    steps:
+      - OUT: app_be_img
+    flags:
+      - be
