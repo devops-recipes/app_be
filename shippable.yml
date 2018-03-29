@@ -38,11 +38,6 @@ integrations:
       type: docker
 
 resources:
-#---------------------------------------------------------------#
-#------------------------------ Dev ----------------------------#
-#---------------------------------------------------------------#
-
-# Docker Image
   - name: app_be_img
     type: image
     integration: drship_dockerhub # replace with your integration name
@@ -52,11 +47,6 @@ resources:
       versionName: latest
 
 jobs:
-#---------------------------------------------------------------#
-#----------------------------   Dev   --------------------------#
-#---------------------------------------------------------------#
-
-# runCI job that builds and pushes artifact using Shippable CI
   - name: app_be_runCI
     type: runCI
     dependencyMode: strict
